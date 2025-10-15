@@ -103,7 +103,23 @@ jobs:
         railway up --service cidades-esg-app --environment production || railway up --service cidades-esg-app
         echo "✅ Deploy to PRODUCTION completed!"
     
-    - name: Obter URL da aplicação
+    - name: Exibir URL da Aplicação
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        echo "📍 Sua aplicação está disponível em:"
-        echo "   https://seu-projeto.up.railway.app/api/cidades"
+        echo "================================================"
+        echo "🌐 APLICAÇÃO DEPLOYADA COM SUCESSO!"
+        echo "================================================"
+        echo ""
+        echo "📍 Acesse sua API em:"
+        railway status || echo "   https://cidades-esg-inteligentes-production.up.railway.app/api/cidades"
+        echo ""
+        echo "🔗 Endpoints disponíveis:"
+        echo "   GET  /api/cidades - Lista todas as cidades"
+        echo "   GET  /api/cidades/{id} - Busca cidade por ID"
+        echo "   POST /api/cidades - Cria nova cidade"
+        echo "   PUT  /api/cidades/{id} - Atualiza cidade"
+        echo "   DELETE /api/cidades/{id} - Remove cidade"
+        echo "   GET  /api/cidades/health - Health check"
+        echo ""
+        echo "================================================"
