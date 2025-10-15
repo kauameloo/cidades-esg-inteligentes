@@ -1,0 +1,103 @@
+name: CI/CD Pipeline - Cidades ESG Inteligentes
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job 1: Build e Testes
+  build-and-test:
+    name: Build e Testes Automatizados
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+    
+    - name: Configurar JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build com Maven
+      run: mvn clean package -DskipTests
+    
+    - name: Executar testes
+      run: mvn test
+    
+    - name: Upload artefato
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-jar
+        path: target/*.jar
+  
+  # Job 2: Build Docker Image
+  docker-build:
+    name: Build Docker Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+    
+    - name: Login no Docker Hub (opcional)
+      run: echo "Docker build local"
+    
+    - name: Build Docker Image
+      run: docker build -t cidades-esg-app:${{ github.sha }} .
+    
+    - name: Testar imagem Docker
+      run: |
+        docker run -d -p 8080:8080 --name test-app cidades-esg-app:${{ github.sha }}
+        sleep 30
+        curl -f http://localhost:8080/api/cidades/health || exit 1
+        docker stop test-app
+  
+  # Job 3: Deploy Staging
+  deploy-staging:
+    name: Deploy para Staging
+    needs: docker-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    environment:
+      name: staging
+      url: http://staging.exemplo.com
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+    
+    - name: Deploy Staging (Simulado)
+      run: |
+        echo "🚀 Deploying to STAGING environment..."
+        echo "Environment: STAGING"
+        echo "Version: ${{ github.sha }}"
+        docker-compose up -d
+        echo "✅ Deploy to STAGING completed!"
+  
+  # Job 4: Deploy Produção
+  deploy-production:
+    name: Deploy para Produção
+    needs: docker-build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: http://producao.exemplo.com
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v4
+    
+    - name: Deploy Produção (Simulado)
+      run: |
+        echo "🚀 Deploying to PRODUCTION environment..."
+        echo "Environment: PRODUCTION"
+        echo "Version: ${{ github.sha }}"
+        docker-compose up -d
+        echo "✅ Deploy to PRODUCTION completed!"
