@@ -45,9 +45,6 @@ jobs:
     - name: Checkout código
       uses: actions/checkout@v4
     
-    - name: Login no Docker Hub (opcional)
-      run: echo "Docker build local"
-    
     - name: Build Docker Image
       run: docker build -t cidades-esg-app:${{ github.sha }} .
     
@@ -66,26 +63,20 @@ jobs:
     if: github.ref == 'refs/heads/staging'
     environment:
       name: staging
-      url: http://staging.exemplo.com
     
     steps:
     - name: Checkout código
       uses: actions/checkout@v4
     
-    - name: Deploy Staging (Simulado)
+    - name: Instalar Railway CLI
+      run: npm install -g @railway/cli
+    
+    - name: Deploy para Railway (Staging)
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        echo "🚀 Deploying to STAGING environment..."
-        echo "Environment: STAGING"
-        echo "Version: ${{ github.sha }}"
-        echo "📦 Building Docker image..."
-        docker build -t cidades-esg-app:staging .
-        echo "✅ Image built successfully!"
-        echo ""
-        echo "ℹ️  Em produção real, aqui seria feito:"
-        echo "   - Push da imagem para registry (Docker Hub, ECR, etc)"
-        echo "   - Deploy para servidor (AWS, Azure, GCP, etc)"
-        echo "   - Configuração de load balancer e DNS"
-        echo ""
+        echo "🚀 Deploying to STAGING on Railway..."
+        railway up --service cidades-esg-app --environment staging || railway up --service cidades-esg-app
         echo "✅ Deploy to STAGING completed!"
   
   # Job 4: Deploy Produção
@@ -96,25 +87,23 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: http://producao.exemplo.com
     
     steps:
     - name: Checkout código
       uses: actions/checkout@v4
     
-    - name: Deploy Produção (Simulado)
+    - name: Instalar Railway CLI
+      run: npm install -g @railway/cli
+    
+    - name: Deploy para Railway (Produção)
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        echo "🚀 Deploying to PRODUCTION environment..."
-        echo "Environment: PRODUCTION"
-        echo "Version: ${{ github.sha }}"
-        echo "📦 Building Docker image..."
-        docker build -t cidades-esg-app:production .
-        echo "✅ Image built successfully!"
-        echo ""
-        echo "ℹ️  Em produção real, aqui seria feito:"
-        echo "   - Push da imagem para registry (Docker Hub, ECR, etc)"
-        echo "   - Deploy para servidor (AWS, Azure, GCP, etc)"
-        echo "   - Configuração de load balancer e DNS"
-        echo "   - Health checks e rollback automático"
-        echo ""
+        echo "🚀 Deploying to PRODUCTION on Railway..."
+        railway up --service cidades-esg-app --environment production || railway up --service cidades-esg-app
         echo "✅ Deploy to PRODUCTION completed!"
+    
+    - name: Obter URL da aplicação
+      run: |
+        echo "📍 Sua aplicação está disponível em:"
+        echo "   https://seu-projeto.up.railway.app/api/cidades"
