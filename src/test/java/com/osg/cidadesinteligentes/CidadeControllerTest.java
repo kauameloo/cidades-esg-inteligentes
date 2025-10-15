@@ -52,6 +52,6 @@ public class CidadeControllerTest {
     public void testHealthCheck() throws Exception {
         mockMvc.perform(get("/api/cidades/health"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("API Cidades osg Inteligentes está funcionando!"));
+                .andExpect(content().string("API Cidades ESG Inteligentes está funcionando!"));
     }
 }
