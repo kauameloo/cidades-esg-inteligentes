@@ -76,7 +76,12 @@ jobs:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         echo "🚀 Deploying to STAGING on Railway..."
-        railway up
+        SERVICE_NAME=$(railway service list --json 2>/dev/null | head -n 1 || echo "")
+        if [ -n "$SERVICE_NAME" ]; then
+          railway up --service "$SERVICE_NAME" || railway up
+        else
+          railway up
+        fi
         echo "✅ Deploy to STAGING completed!"
   
   # Job 4: Deploy Produção
@@ -95,19 +100,16 @@ jobs:
     - name: Instalar Railway CLI
       run: npm install -g @railway/cli
     
-    - name: Verificar projeto Railway
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      run: |
-        echo "📋 Verificando projeto Railway..."
-        railway status || echo "Projeto encontrado"
-    
     - name: Deploy para Railway (Produção)
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         echo "🚀 Deploying to PRODUCTION on Railway..."
-        railway up
+        railway up 2>/dev/null || {
+          echo "Detectando serviços disponíveis..."
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }} 2>/dev/null || true
+          railway up
+        }
         echo "✅ Deploy to PRODUCTION completed!"
     
     - name: Exibir URL da Aplicação
@@ -117,16 +119,6 @@ jobs:
         echo "================================================"
         echo "🌐 APLICAÇÃO DEPLOYADA COM SUCESSO!"
         echo "================================================"
-        echo ""
-        echo "📍 Acesse sua API em:"
-        railway status || echo "   Verifique a URL no painel do Railway"
-        echo ""
-        echo "🔗 Endpoints disponíveis:"
-        echo "   GET  /api/cidades - Lista todas as cidades"
-        echo "   GET  /api/cidades/{id} - Busca cidade por ID"
-        echo "   POST /api/cidades - Cria nova cidade"
-        echo "   PUT  /api/cidades/{id} - Atualiza cidade"
-        echo "   DELETE /api/cidades/{id} - Remove cidade"
-        echo "   GET  /api/cidades/health - Health check"
-        echo ""
+        echo "Acesse o painel do Railway para ver a URL:"
+        echo "https://railway.app/project/${{ secrets.RAILWAY_PROJECT_ID }}"
         echo "================================================"
