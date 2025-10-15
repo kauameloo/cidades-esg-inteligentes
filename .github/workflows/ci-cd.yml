@@ -77,7 +77,15 @@ jobs:
         echo "🚀 Deploying to STAGING environment..."
         echo "Environment: STAGING"
         echo "Version: ${{ github.sha }}"
-        docker-compose up -d
+        echo "📦 Building Docker image..."
+        docker build -t cidades-esg-app:staging .
+        echo "✅ Image built successfully!"
+        echo ""
+        echo "ℹ️  Em produção real, aqui seria feito:"
+        echo "   - Push da imagem para registry (Docker Hub, ECR, etc)"
+        echo "   - Deploy para servidor (AWS, Azure, GCP, etc)"
+        echo "   - Configuração de load balancer e DNS"
+        echo ""
         echo "✅ Deploy to STAGING completed!"
   
   # Job 4: Deploy Produção
@@ -99,5 +107,14 @@ jobs:
         echo "🚀 Deploying to PRODUCTION environment..."
         echo "Environment: PRODUCTION"
         echo "Version: ${{ github.sha }}"
-        docker-compose up -d
+        echo "📦 Building Docker image..."
+        docker build -t cidades-esg-app:production .
+        echo "✅ Image built successfully!"
+        echo ""
+        echo "ℹ️  Em produção real, aqui seria feito:"
+        echo "   - Push da imagem para registry (Docker Hub, ECR, etc)"
+        echo "   - Deploy para servidor (AWS, Azure, GCP, etc)"
+        echo "   - Configuração de load balancer e DNS"
+        echo "   - Health checks e rollback automático"
+        echo ""
         echo "✅ Deploy to PRODUCTION completed!"
