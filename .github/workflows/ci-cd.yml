@@ -76,7 +76,7 @@ jobs:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         echo "🚀 Deploying to STAGING on Railway..."
-        railway up --service cidades-esg-app --environment staging || railway up --service cidades-esg-app
+        railway up
         echo "✅ Deploy to STAGING completed!"
   
   # Job 4: Deploy Produção
@@ -95,12 +95,19 @@ jobs:
     - name: Instalar Railway CLI
       run: npm install -g @railway/cli
     
+    - name: Verificar projeto Railway
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        echo "📋 Verificando projeto Railway..."
+        railway status || echo "Projeto encontrado"
+    
     - name: Deploy para Railway (Produção)
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         echo "🚀 Deploying to PRODUCTION on Railway..."
-        railway up --service cidades-esg-app --environment production || railway up --service cidades-esg-app
+        railway up
         echo "✅ Deploy to PRODUCTION completed!"
     
     - name: Exibir URL da Aplicação
@@ -112,7 +119,7 @@ jobs:
         echo "================================================"
         echo ""
         echo "📍 Acesse sua API em:"
-        railway status || echo "   https://cidades-esg-inteligentes-production.up.railway.app/api/cidades"
+        railway status || echo "   Verifique a URL no painel do Railway"
         echo ""
         echo "🔗 Endpoints disponíveis:"
         echo "   GET  /api/cidades - Lista todas as cidades"
